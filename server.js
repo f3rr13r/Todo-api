@@ -1,22 +1,15 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 var PORT = process.env.PORT || 3000;
-var todos = [{
-	id: 1,
-	description: 'Do Laundry',
-	completed: false
-	},
-	{
-	id: 2,
-	description: 'Email Kevin Seal',
-	completed: false
-	},
-	{
-	id: 3,
-	description: 'Cook Dinner',
-	completed: false
-	}
-	];
+var todos = [];
+var todoNextId = 1;
+
+
+
+
+app.use(bodyParser.json());
+
 
 
 
@@ -57,17 +50,41 @@ app.get('/todos/:id', function (request, response) {
 
 	});
 
-	if (typeof matchedItem === 'undefined') {
+	if (matchedItem) {
 
-		response.status(404).send();
+		response.json(matchedItem);
 
 	} else {
 
-		response.json(matchedItem);
+		response.status(404).send();
 
 	}
 
 });
+
+
+
+
+// POST /todos
+app.post('/todos', function (request, response) {
+
+	var body = request.body;
+
+	// Add id and set it to todoId.
+	body.id = todoNextId;
+
+	// Add 1 to todo id.
+	todoNextId += 1;
+
+	//Add body to todos array.
+	todos.push(body);
+
+
+	response.json(body);
+
+});
+
+
 
 
 
