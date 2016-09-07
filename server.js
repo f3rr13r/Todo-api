@@ -90,6 +90,37 @@ app.post('/todos', function (request, response) {
 
 
 
+// DELETE /todos/:id
+
+app.delete('/todos/:id', function (request, response) {
+
+	// Register the inputted id.
+	var todoID = parseInt(request.params.id, 10);
+
+	// Search through todos array for the matching item.
+	var matchedTodo = _.findWhere(todos, {id: todoID});
+
+
+	if (matchedTodo) {
+
+		// Update the todos array with the matchedTodo removed.
+		todos = _.without(todos, matchedTodo);
+
+		response.status(200).send(matchedTodo);
+
+
+	} else {
+
+		response.status(404).send();
+
+	}
+	
+
+});
+
+
+
+
 
 
 
