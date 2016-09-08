@@ -2,6 +2,7 @@ var express = require('express');
 var _ = require('underscore');
 var app = express();
 var bodyParser = require('body-parser');
+var db = require('./db.js');
 
 
 
@@ -91,26 +92,16 @@ app.post('/todos', function(request, response) {
 
 	var body = _.pick(request.body, 'description', 'completed');
 
-	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+	db.todo.create(body).then(function (todo) {
 
-		return response.status(400).send();
+		response.json(todo.toJSON());
 
-	}
+	}, function (error) {
 
-	// Set body.description to be trimmed value.
-	body.description = body.description.trim();
+		response.status(400).json(error);
 
-	// Add id and set it to todoId.
-	body.id = todoNextId;
+	}); 
 
-	// Add 1 to todo id.
-	todoNextId += 1;
-
-	//Add body to todos array.
-	todos.push(body);
-
-
-	response.json(body);
 
 });
 
@@ -216,12 +207,12 @@ app.put('/todos/:id', function(request, response) {
 });
 
 
+db.sequelize.sync().then(function () {
 
-
-
-
-app.listen(PORT, function() {
+	app.listen(PORT, function() {
 
 	console.log('Express listening on port ' + PORT + '.');
+
+	});
 
 });
