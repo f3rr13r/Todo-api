@@ -66,24 +66,26 @@ app.get('/todos', function(request, response) {
 // GET /todos/:<your todo id here>
 app.get('/todos/:id', function(request, response) {
 
-	var todoID = request.params.id;
-	var matchedTodo = _.findWhere(todos, {
-		id: parseInt(todoID)
+	var todoID = parseInt(request.params.id, 10);
+	
+	db.todo.findById(todoID).then(function (todo) {
+
+		if (todo) {
+
+			response.json(todo.toJSON());
+
+		} else {
+
+			response.status(404).send("Could not retrieve todo item with that id.");
+
+		}
+	}, function (error) {
+
+		response.status(500).send();
+
 	});
 
-
-	if (matchedTodo) {
-
-		response.json(matchedTodo);
-
-	} else {
-
-		response.status(404).send();
-
-	}
-
 });
-
 
 
 
