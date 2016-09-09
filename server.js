@@ -3,6 +3,7 @@ var _ = require('underscore');
 var app = express();
 var bodyParser = require('body-parser');
 var db = require('./db.js');
+var bcrypt = require('bcrypt');
 
 
 
@@ -247,9 +248,35 @@ app.post('/users', function (request, response) {
 
 
 
+// POST /users/login
+app.post('/users/login', function (request, response) {
+
+	var body = _.pick(request.body, 'email', 'password');
+
+	var inputtedEmail = body.email;
+
+	var inputtedPassword = body.password;
 
 
-db.sequelize.sync().then(function () {
+	db.user.authenticate(body).then(function (user) {
+
+		response.status(200).json(user.toPublicJSON());
+
+	}, function (error) {
+
+		response.status(401).send('Failed login with details. Try again.');
+
+	});
+
+});
+
+
+
+
+
+
+
+db.sequelize.sync({force: true}).then(function () {
 
 	app.listen(PORT, function() {
 
@@ -258,3 +285,14 @@ db.sequelize.sync().then(function () {
 	});
 
 });
+
+
+
+
+
+
+
+
+
+
+
