@@ -121,10 +121,6 @@ app.post('/todos', function(request, response) {
 
 
 
-
-
-
-
 // DELETE /todos/:id
 
 app.delete('/todos/:id', function(request, response) {
@@ -132,29 +128,29 @@ app.delete('/todos/:id', function(request, response) {
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
 
-	// Search through todos array for the matching item.
-	var matchedTodo = _.findWhere(todos, {
-		id: todoID
-	});
+	db.todo.destroy({
+		where: {
+			id: todoID
+		}
+	}).then(function (rowsDeleted) {
 
+		if (rowsDeleted === 0) {
 
-	if (matchedTodo) {
+			response.status(400).json({
+				error: 'No todo with matched id'
+			});
 
-		// Update the todos array with the matchedTodo removed.
-		todos = _.without(todos, matchedTodo);
+		} else {
 
-		response.status(200).send(matchedTodo);
+			response.status(204).send();
 
+		}
 
-	} else {
+	}, function (error) {
 
-		response.status(404).json({
+		response.status(500).send();
 
-			"error": "no todo item found matching that id"
-
-		});
-
-	}
+	})
 
 
 });
