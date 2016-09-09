@@ -36,11 +36,15 @@ app.get('/', function(request, response) {
 
 
 
-// GET /todos?completed=true&q=house
+// GET /todos
 app.get('/todos', middleware.requireAuthentication, function(request, response) {
 
+	var userID = request.user.get('id')
+
 	var query = request.query;
-	var where = {};
+	var where = {
+		userId: userID
+	}
 
 	if (query.hasOwnProperty('completed') && query.completed === 'true') {
 		where.completed = true
@@ -80,25 +84,33 @@ app.get('/todos', middleware.requireAuthentication, function(request, response) 
 // GET /todos/:<your todo id here>
 app.get('/todos/:id', middleware.requireAuthentication, function(request, response) {
 
+	var userID = request.user.get('id');
 	var todoID = parseInt(request.params.id, 10);
 	
-	db.todo.findById(todoID).then(function (todo) {
+	db.todo.findOne({
+		where: {
 
-		if (todo) {
+			id: todoID,
+			userId: userID
 
-			response.json(todo.toJSON());
+		}
+	}).then(function (todo) {
+
+		if (!todo) {
+
+			response.status(401).send();
 
 		} else {
 
-			response.status(404).send("Could not retrieve todo item with that id.");
+			response.status(200).json(todo.toJSON());
 
 		}
+
 	}, function (error) {
 
-		response.status(500).send();
+		response.status(400).json(error);
 
 	});
-
 });
 
 
@@ -151,10 +163,12 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(request, res
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
+	var userID = request.user.get('id');
 
 	db.todo.destroy({
 		where: {
-			id: todoID
+			id: todoID,
+			userId: userID
 		}
 	}).then(function (rowsDeleted) {
 
@@ -192,6 +206,8 @@ app.put('/todos/:id', middleware.requireAuthentication, function(request, respon
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
+	var userID = request.user.get('id');
+
 	var body = _.pick(request.body, 'description', 'completed');
 	var attributes = {};
 
@@ -206,7 +222,16 @@ app.put('/todos/:id', middleware.requireAuthentication, function(request, respon
 	}
 
 
-	db.todo.findById(todoID).then(function (todo) {
+	db.todo.findOne({
+
+		where: {
+
+			id: todoID,
+			userId: userID
+
+		}
+
+	}).then(function (todo) {
 
 	if (todo) {
 			todo.update(attributes)
@@ -295,7 +320,7 @@ app.post('/users/login', function (request, response) {
 
 
 
-db.sequelize.sync({force: true}).then(function () {
+db.sequelize.sync({/*force: true*/}).then(function () {
 
 	app.listen(PORT, function() {
 
