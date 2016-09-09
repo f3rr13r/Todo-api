@@ -12,8 +12,6 @@ var todos = [];
 var todoNextId = 1;
 
 
-
-
 app.use(bodyParser.json());
 
 
@@ -25,6 +23,13 @@ app.get('/', function(request, response) {
 	response.send('Todo API Root');
 
 });
+
+
+
+
+
+
+
 
 
 
@@ -69,6 +74,7 @@ app.get('/todos', function(request, response) {
 
 
 
+
 // GET /todos/:<your todo id here>
 app.get('/todos/:id', function(request, response) {
 
@@ -100,6 +106,7 @@ app.get('/todos/:id', function(request, response) {
 
 
 
+
 // POST /todos
 app.post('/todos', function(request, response) {
 
@@ -117,6 +124,13 @@ app.post('/todos', function(request, response) {
 
 
 });
+
+
+
+
+
+
+
 
 
 
@@ -142,7 +156,9 @@ app.delete('/todos/:id', function(request, response) {
 
 		} else {
 
-			response.status(204).send();
+			response.status(204).json({
+				description: 'Todo item with id of ' + ' successfully deleted.'
+			});
 
 		}
 
@@ -166,59 +182,51 @@ app.put('/todos/:id', function(request, response) {
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
+	var body = _.pick(request.body, 'description', 'completed');
+	var attributes = {};
 
-	// Search through todos array for the matching item.
-	var matchedTodo = _.findWhere(todos, {
-		id: todoID
+	if (body.hasOwnProperty('completed')) {
+		attributes.completed = body.completed;
+
+	}
+
+	if (body.hasOwnProperty('description')) {
+		attributes.description = body.description;
+
+	}
+
+
+	db.todo.findById(todoID).then(function (todo) {
+
+	if (todo) {
+			todo.update(attributes)
+			.then(function (todo) {
+			response.json(todo.toJSON());
+
+	}, function (error) {
+		response.status(400).json(error);
+
 	});
 
-	var body = _.pick(request.body, 'description', 'completed');
+		} else {
 
-	var validAttributes = {};
+			response.status(400).send();
+		}		
 
+	}, function () {
+			response.status(500).send();
 
-	if (!matchedTodo) {
-
-		return response.status(404).send();
-
-	}
-
-
-
-	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-
-		validAttributes.completed = body.completed;
-
-	} else if (body.hasOwnProperty('completed')) {
-
-		return response.status(400).send();
-
-	} else {
-
-		// Never provided attribute, no problem here.
-
-	}
-
-
-
-	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-
-		validAttributes.description = body.description;
-
-	} else if (body.hasOwnProperty('description')) {
-
-		return response.status(400).send();
-
-	}
-
-
-
-	_.extend(matchedTodo, validAttributes);
-
-	response.json(matchedTodo);
-
+	});
 
 });
+
+
+
+
+
+
+
+
 
 
 db.sequelize.sync().then(function () {
