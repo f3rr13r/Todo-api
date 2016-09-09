@@ -233,7 +233,7 @@ app.post('/users', function (request, response) {
 
 	db.user.create(body).then(function (user) {
 
-		response.status(200).json(user.toJSON());
+		response.status(200).json(user.toPublicJSON());
 
 	}, function (error) {
 
