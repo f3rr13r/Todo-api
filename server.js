@@ -3,6 +3,7 @@ var _ = require('underscore');
 var app = express();
 var bodyParser = require('body-parser');
 var db = require('./db.js');
+var middleware = require('./middleware.js')(db);
 var bcrypt = require('bcrypt');
 
 
@@ -36,7 +37,7 @@ app.get('/', function(request, response) {
 
 
 // GET /todos?completed=true&q=house
-app.get('/todos', function(request, response) {
+app.get('/todos', middleware.requireAuthentication, function(request, response) {
 
 	var query = request.query;
 	var where = {};
@@ -77,7 +78,7 @@ app.get('/todos', function(request, response) {
 
 
 // GET /todos/:<your todo id here>
-app.get('/todos/:id', function(request, response) {
+app.get('/todos/:id', middleware.requireAuthentication, function(request, response) {
 
 	var todoID = parseInt(request.params.id, 10);
 	
@@ -109,7 +110,7 @@ app.get('/todos/:id', function(request, response) {
 
 
 // POST /todos
-app.post('/todos', function(request, response) {
+app.post('/todos', middleware.requireAuthentication, function(request, response) {
 
 	var body = _.pick(request.body, 'description', 'completed');
 
@@ -138,7 +139,7 @@ app.post('/todos', function(request, response) {
 
 // DELETE /todos/:id
 
-app.delete('/todos/:id', function(request, response) {
+app.delete('/todos/:id', middleware.requireAuthentication, function(request, response) {
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
@@ -179,7 +180,7 @@ app.delete('/todos/:id', function(request, response) {
 
 // PUT (UPDATE) /todos/:id
 
-app.put('/todos/:id', function(request, response) {
+app.put('/todos/:id', middleware.requireAuthentication, function(request, response) {
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
