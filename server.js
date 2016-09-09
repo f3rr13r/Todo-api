@@ -260,7 +260,17 @@ app.post('/users/login', function (request, response) {
 
 	db.user.authenticate(body).then(function (user) {
 
-		response.status(200).json(user.toPublicJSON());
+		var token = user.generateToken('authentication');
+
+		if (token) {
+
+			response.status(200).header('Auth', token).json(user.toPublicJSON());
+
+		} else {
+
+			response.status(401).send('Failure to create authentication code.');
+
+		}
 
 	}, function (error) {
 
