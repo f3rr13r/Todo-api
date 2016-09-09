@@ -227,6 +227,26 @@ app.put('/todos/:id', function(request, response) {
 
 
 
+app.post('/users', function (request, response) {
+
+	var body = _.pick(request.body, 'email', 'password');
+
+	db.user.create(body).then(function (user) {
+
+		response.status(200).json(user.toJSON());
+
+	}, function (error) {
+
+		response.status(400).json(error);
+
+	}); 
+
+});
+
+
+
+
+
 
 
 db.sequelize.sync().then(function () {
