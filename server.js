@@ -37,10 +37,9 @@ app.get('/', function(request, response) {
 
 
 // GET /todos
-app.get('/todos', middleware.requireAuthentication, function(request, response) {
+app.get('/todos', middleware.requireAuthentication, function (request, response) {
 
 	var userID = request.user.get('id')
-
 	var query = request.query;
 	var where = {
 		userId: userID
@@ -82,7 +81,7 @@ app.get('/todos', middleware.requireAuthentication, function(request, response) 
 
 
 // GET /todos/:<your todo id here>
-app.get('/todos/:id', middleware.requireAuthentication, function(request, response) {
+app.get('/todos/:id', middleware.requireAuthentication, function (request, response) {
 
 	var userID = request.user.get('id');
 	var todoID = parseInt(request.params.id, 10);
@@ -122,7 +121,7 @@ app.get('/todos/:id', middleware.requireAuthentication, function(request, respon
 
 
 // POST /todos
-app.post('/todos', middleware.requireAuthentication, function(request, response) {
+app.post('/todos', middleware.requireAuthentication, function (request, response) {
 
 	var body = _.pick(request.body, 'description', 'completed');
 
@@ -159,7 +158,7 @@ app.post('/todos', middleware.requireAuthentication, function(request, response)
 
 // DELETE /todos/:id
 
-app.delete('/todos/:id', middleware.requireAuthentication, function(request, response) {
+app.delete('/todos/:id', middleware.requireAuthentication, function (request, response) {
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
@@ -202,7 +201,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(request, res
 
 // PUT (UPDATE) /todos/:id
 
-app.put('/todos/:id', middleware.requireAuthentication, function(request, response) {
+app.put('/todos/:id', middleware.requireAuthentication, function (request, response) {
 
 	// Register the inputted id.
 	var todoID = parseInt(request.params.id, 10);
